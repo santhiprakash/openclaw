@@ -1198,9 +1198,18 @@
       ]
     },
     {
+      "locale": "ru",
+      "source": "Collapsed",
+      "translations": [
+        "Свернуто",
+        "Свёрнуто"
+      ]
+    },
+    {
       "locale": "sv",
       "source": "Collapsed",
       "translations": [
+        "Hopfälld",
         "Ihopfälld",
         "Komprimerad"
       ]
@@ -1209,6 +1218,7 @@
       "locale": "th",
       "source": "Collapsed",
       "translations": [
+        "ยุบ",
         "ยุบอยู่",
         "ยุบแล้ว"
       ]
@@ -2825,6 +2835,62 @@
       "translations": [
         "Ativado",
         "Habilitado"
+      ]
+    },
+    {
+      "locale": "fa",
+      "source": "Expanded",
+      "translations": [
+        "بازشده",
+        "گسترده"
+      ]
+    },
+    {
+      "locale": "id",
+      "source": "Expanded",
+      "translations": [
+        "Buka",
+        "Diperluas"
+      ]
+    },
+    {
+      "locale": "ja-JP",
+      "source": "Expanded",
+      "translations": [
+        "展開",
+        "展開済み"
+      ]
+    },
+    {
+      "locale": "ru",
+      "source": "Expanded",
+      "translations": [
+        "Развернуто",
+        "Развёрнуто"
+      ]
+    },
+    {
+      "locale": "th",
+      "source": "Expanded",
+      "translations": [
+        "ขยาย",
+        "ขยายอยู่"
+      ]
+    },
+    {
+      "locale": "tr",
+      "source": "Expanded",
+      "translations": [
+        "Genişletildi",
+        "Genişletilmiş"
+      ]
+    },
+    {
+      "locale": "vi",
+      "source": "Expanded",
+      "translations": [
+        "Mở rộng",
+        "Đã mở rộng"
       ]
     },
     {
@@ -7185,9 +7251,18 @@
       ]
     },
     {
+      "locale": "ar",
+      "source": "Reconnecting…",
+      "translations": [
+        "إعادة الاتصال…",
+        "جارٍ إعادة الاتصال…"
+      ]
+    },
+    {
       "locale": "hi",
       "source": "Reconnecting…",
       "translations": [
+        "पुनः कनेक्ट हो रहा है…",
         "फिर से कनेक्ट किया जा रहा है…",
         "फिर से कनेक्ट हो रहा है…"
       ]
@@ -7213,6 +7288,7 @@
       "source": "Reconnecting…",
       "translations": [
         "다시 연결 중…",
+        "다시 연결하는 중…",
         "재연결 중…"
       ]
     },
@@ -7222,6 +7298,14 @@
       "translations": [
         "Opnieuw verbinden…",
         "Opnieuw verbinding maken…"
+      ]
+    },
+    {
+      "locale": "ru",
+      "source": "Reconnecting…",
+      "translations": [
+        "Переподключение…",
+        "Повторное подключение…"
       ]
     },
     {
@@ -8500,6 +8584,38 @@
       "translations": [
         "Configurar",
         "Configuração"
+      ]
+    },
+    {
+      "locale": "ja-JP",
+      "source": "Show less",
+      "translations": [
+        "折りたたむ",
+        "表示を減らす"
+      ]
+    },
+    {
+      "locale": "nl",
+      "source": "Show less",
+      "translations": [
+        "Minder tonen",
+        "Minder weergeven"
+      ]
+    },
+    {
+      "locale": "vi",
+      "source": "Show less",
+      "translations": [
+        "Hiển thị ít hơn",
+        "Hiện ít hơn"
+      ]
+    },
+    {
+      "locale": "zh-CN",
+      "source": "Show less",
+      "translations": [
+        "收起",
+        "显示更少"
       ]
     },
     {
