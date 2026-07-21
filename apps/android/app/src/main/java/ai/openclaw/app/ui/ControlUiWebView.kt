@@ -3,7 +3,6 @@ package ai.openclaw.app.ui
 import ai.openclaw.app.NodeRuntime
 import ai.openclaw.app.gateway.normalizeGatewayTlsFingerprintInput
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.net.http.SslCertificate
 import android.net.http.SslError
 import android.view.View
@@ -17,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
@@ -114,6 +114,8 @@ private fun installControlUiAuthScript(
 private class ControlUiWebViewClient(
   private val page: NodeRuntime.GatewayControlPage,
 ) : WebViewClient() {
+  // Android lint cannot infer the exact pin and origin checks below; every other path cancels.
+  @SuppressLint("WebViewClientOnReceivedSslError")
   override fun onReceivedSslError(
     view: WebView,
     handler: SslErrorHandler,
@@ -170,7 +172,7 @@ private data class HttpsOrigin(
 )
 
 private fun parsedHttpsOrigin(rawUrl: String): HttpsOrigin? {
-  val uri = Uri.parse(rawUrl)
+  val uri = rawUrl.toUri()
   if (!uri.scheme.equals("https", ignoreCase = true)) return null
   val host = uri.host?.lowercase(Locale.US) ?: return null
   val port = uri.port.takeIf { it >= 0 } ?: 443
@@ -178,14 +180,14 @@ private fun parsedHttpsOrigin(rawUrl: String): HttpsOrigin? {
 }
 
 private fun controlUiOrigin(baseUrl: String): String? {
-  val uri = Uri.parse(baseUrl)
+  val uri = baseUrl.toUri()
   val scheme = uri.scheme?.lowercase(Locale.US) ?: return null
   val authority = uri.encodedAuthority ?: return null
   return "$scheme://$authority"
 }
 
 private fun controlUiWebSocketUrl(baseUrl: String): String? {
-  val uri = Uri.parse(baseUrl)
+  val uri = baseUrl.toUri()
   val scheme =
     when (uri.scheme?.lowercase(Locale.US)) {
       "https" -> "wss"
