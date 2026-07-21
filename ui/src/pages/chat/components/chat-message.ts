@@ -674,7 +674,9 @@ export function renderStreamGroup(parts: StreamGroupPart[], opts: StreamGroupOpt
 
   return html`
     <div
-      class="chat-group assistant ${workingOnly ? "chat-group--working" : ""}"
+      class="chat-group assistant ${workingOnly
+        ? "chat-group--working"
+        : "chat-group--with-footer"}"
       data-chat-row-key=${parts[0]?.key ?? nothing}
     >
       ${avatar}
@@ -700,17 +702,17 @@ export function renderStreamGroup(parts: StreamGroupPart[], opts: StreamGroupOpt
                     onOpenSidebar,
                   ),
         )}
-        ${footerStartedAt !== null
-          ? html`
-              <div class="chat-group-footer">
-                <div class="chat-group-footer__meta">
-                  <span class="chat-sender-name">${name}</span>
-                  ${renderChatTimestamp(footerStartedAt)}
-                </div>
-              </div>
-            `
-          : nothing}
       </div>
+      ${footerStartedAt !== null
+        ? html`
+            <div class="chat-group-footer">
+              <div class="chat-group-footer__meta">
+                <span class="chat-sender-name">${name}</span>
+                ${renderChatTimestamp(footerStartedAt)}
+              </div>
+            </div>
+          `
+        : nothing}
     </div>
   `;
 }
@@ -891,7 +893,10 @@ export function renderMessageGroup(group: MessageGroup, opts: RenderMessageGroup
     const activityExpanded = opts.isToolMessageExpanded?.(activityDisclosureId) ?? hasError;
 
     return html`
-      <div class="chat-group tool chat-group--activity" data-chat-row-key=${group.key}>
+      <div
+        class="chat-group tool chat-group--activity chat-group--with-footer"
+        data-chat-row-key=${group.key}
+      >
         ${renderChatAvatar(
           group.role,
           {
@@ -953,11 +958,11 @@ export function renderMessageGroup(group: MessageGroup, opts: RenderMessageGroup
                 `
               : nothing}
           </div>
-          <div class="chat-group-footer">
-            <span class="chat-sender-name">${t("chat.messages.activity")}</span>
-            ${renderChatTimestamp(group.timestamp)}
-            ${opts.onDelete ? renderDeleteButton(opts.onDelete, "right") : nothing}
-          </div>
+        </div>
+        <div class="chat-group-footer">
+          <span class="chat-sender-name">${t("chat.messages.activity")}</span>
+          ${renderChatTimestamp(group.timestamp)}
+          ${opts.onDelete ? renderDeleteButton(opts.onDelete, "right") : nothing}
         </div>
       </div>
     `;
@@ -970,7 +975,7 @@ export function renderMessageGroup(group: MessageGroup, opts: RenderMessageGroup
   const footerActionDetails = messageActionDetails[lastMessageIndex] ?? null;
 
   return html`
-    <div class="chat-group ${roleClass}" data-chat-row-key=${group.key}>
+    <div class="chat-group ${roleClass} chat-group--with-footer" data-chat-row-key=${group.key}>
       ${renderChatAvatar(
         group.role,
         {
@@ -1004,31 +1009,31 @@ export function renderMessageGroup(group: MessageGroup, opts: RenderMessageGroup
               : nothing}
           `;
         })}
-        <div class="chat-group-footer">
-          <div class="chat-group-footer__meta">
-            ${opts.onRewind && normalizedRole === "user"
-              ? renderRewindButton(opts.onRewind, Boolean(opts.rewindDisabled), "left")
-              : nothing}
-            ${opts.onDelete && normalizedRole === "user"
-              ? renderDeleteButton(opts.onDelete, "left")
-              : nothing}
-            ${normalizedRole === "user" ? renderChatAuthorAvatar(group.sender) : nothing}
-            <span class="chat-sender-name">${who}</span>
-            ${renderMessageMeta(group.timestamp, meta)}
-          </div>
-          ${footerActionDetails || (opts.onDelete && normalizedRole !== "user")
-            ? html`
-                <div class="chat-group-footer-actions">
-                  ${opts.onDelete && normalizedRole !== "user"
-                    ? renderDeleteButton(opts.onDelete, "right")
-                    : nothing}
-                  ${footerActionDetails
-                    ? renderMessageActionButtons(footerActionDetails, opts, opts.onOpenSidebar)
-                    : nothing}
-                </div>
-              `
+      </div>
+      <div class="chat-group-footer">
+        <div class="chat-group-footer__meta">
+          ${opts.onRewind && normalizedRole === "user"
+            ? renderRewindButton(opts.onRewind, Boolean(opts.rewindDisabled), "left")
             : nothing}
+          ${opts.onDelete && normalizedRole === "user"
+            ? renderDeleteButton(opts.onDelete, "left")
+            : nothing}
+          ${normalizedRole === "user" ? renderChatAuthorAvatar(group.sender) : nothing}
+          <span class="chat-sender-name">${who}</span>
+          ${renderMessageMeta(group.timestamp, meta)}
         </div>
+        ${footerActionDetails || (opts.onDelete && normalizedRole !== "user")
+          ? html`
+              <div class="chat-group-footer-actions">
+                ${opts.onDelete && normalizedRole !== "user"
+                  ? renderDeleteButton(opts.onDelete, "right")
+                  : nothing}
+                ${footerActionDetails
+                  ? renderMessageActionButtons(footerActionDetails, opts, opts.onOpenSidebar)
+                  : nothing}
+              </div>
+            `
+          : nothing}
       </div>
     </div>
   `;
