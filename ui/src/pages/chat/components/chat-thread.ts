@@ -44,6 +44,7 @@ import {
   resolveUiGlobalAliasAgentId,
   type UiSessionDefaultsHost,
 } from "../../../lib/sessions/session-key.ts";
+import { resolveTurnRecap } from "../chat-progress.ts";
 import {
   buildCachedChatItems,
   coalesceStreamRuns,
@@ -76,6 +77,7 @@ import { renderRealtimeTalkConversation } from "./chat-realtime-controls.ts";
 import { handleChatSelectionPointerUp, removeChatSelectionPopup } from "./chat-selection-popup.ts";
 import type { SidebarContent } from "./chat-sidebar.ts";
 import { renderWelcomeState, resolveAssistantDisplayAvatar } from "./chat-welcome.ts";
+import { renderTurnRecapRow } from "./chat-working-indicator.ts";
 
 const pinnedMessagesMap = new Map<string, PinnedMessages>();
 const deletedMessagesMap = new Map<string, DeletedMessages>();
@@ -1259,6 +1261,18 @@ function renderChatThreadContents(
       content: realtimeConversation,
     });
   }
+  // Watch/settle on actual indicator visibility (not runWorking): queued
+  // sends show the claw before the run starts, and the recap must never
+  // stack under a visible working row.
+  const workingIndicatorVisible = chatItems.some((item) => item.kind === "reading-indicator");
+  const turnRecap = resolveTurnRecap(props.sessionKey, workingIndicatorVisible, activeSession);
+  if (turnRecap !== null && !isEmpty && !showLoadingSkeleton) {
+    transcriptRows.push({
+      kind: "content",
+      key: "turn-recap",
+      content: renderTurnRecapRow(turnRecap),
+    });
+  }
   const backgroundTasks =
     !props.runWorking && !isEmpty && !showLoadingSkeleton
       ? renderBackgroundTasksStatusRow(props.backgroundTasks)
@@ -1306,6 +1320,7 @@ function renderChatThreadContents(
     props.embedSandboxMode ?? "scripts",
     props.allowExternalEmbedUrls ?? false,
     threadContextWindow,
+    turnRecap === null ? "" : `${turnRecap.runtimeMs}:${turnRecap.outputTokens ?? ""}`,
   ]);
   const transcriptContents =
     showLoadingSkeleton || isEmpty
