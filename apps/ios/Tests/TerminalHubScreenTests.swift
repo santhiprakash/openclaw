@@ -32,14 +32,14 @@ struct TerminalHubScreenTests {
                 deviceAuthGatewayID: deviceAuthGatewayID))
     }
 
-    @Test func `terminal URL flips scheme and carries only view parameter`() throws {
+    @Test func `terminal URL flips scheme and preserves the Control UI base path`() throws {
         let config = try Self.makeConfig(
-            url: #require(URL(string: "wss://gateway.example.com:8443/ws")),
+            url: #require(URL(string: "wss://gateway.example.com:8443/openclaw")),
             token: "secret-token")
 
         let url = TerminalHubScreen.terminalURL(config: config)
 
-        #expect(url?.absoluteString == "https://gateway.example.com:8443/?view=terminal")
+        #expect(url?.absoluteString == "https://gateway.example.com:8443/openclaw/?view=terminal")
         // Credentials must never ride in the page URL; they travel via the
         // document-start auth user script instead.
         #expect(url?.absoluteString.contains("secret-token") == false)
@@ -51,6 +51,23 @@ struct TerminalHubScreenTests {
         let url = TerminalHubScreen.terminalURL(config: config)
 
         #expect(url?.absoluteString == "http://192.168.1.10:18789/?view=terminal")
+    }
+
+    @Test func `dashboard URL appends its route beneath the Control UI base path`() throws {
+        let config = try Self.makeConfig(
+            url: #require(URL(string: "wss://gateway.example.com:8443/openclaw/")))
+
+        let url = AuthenticatedControlUI.pageURL(
+            config: config,
+            path: "chat",
+            queryItems: [
+                URLQueryItem(name: "session", value: "agent-main"),
+                URLQueryItem(name: "face", value: "dashboard"),
+            ])
+
+        #expect(
+            url?.absoluteString ==
+                "https://gateway.example.com:8443/openclaw/chat?session=agent-main&face=dashboard")
     }
 
     @Test func `auth user script carries credentials gated to the page origin`() throws {

@@ -788,6 +788,7 @@ class NodeRuntime private constructor(
     val baseUrl: String,
     val token: String?,
     val password: String?,
+    val tlsFingerprintSha256: String?,
   )
 
   private val appContext = context.applicationContext
@@ -4329,6 +4330,10 @@ class NodeRuntime private constructor(
         baseUrl = gatewayControlPageBaseUrl(endpoint),
         token = pageAuth.token,
         password = pageAuth.password,
+        tlsFingerprintSha256 =
+          prefs
+            .loadGatewayTlsFingerprint(endpoint.stableId)
+            ?.let(::normalizeGatewayTlsFingerprintInput),
       )
   }
 
