@@ -7,6 +7,7 @@ import {
 } from "../../daemon/systemd-hints.js";
 import { classifySystemdUnavailableDetail } from "../../daemon/systemd-unavailable.js";
 import { isWSL } from "../../infra/wsl.js";
+import { requestExitAfterOneShotOutput } from "../one-shot-exit.js";
 import { defaultRuntime } from "../../runtime.js";
 
 /** Gateway service action emitted by lifecycle commands. */
@@ -48,6 +49,9 @@ type DaemonActionResponse = {
 
 function emitDaemonActionJson(payload: DaemonActionResponse) {
   defaultRuntime.writeJson(payload);
+  if (payload.ok) {
+    requestExitAfterOneShotOutput(defaultRuntime, 0);
+  }
 }
 
 function classifyDaemonHintText(text: string): DaemonHintKind {

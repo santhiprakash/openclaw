@@ -4,6 +4,7 @@ import type { SafeGatewayRestartRequestResult } from "../../infra/restart-coordi
 import type { GatewayRestartIntent } from "../../infra/restart-intent.js";
 import { defaultRuntime, writeRuntimeJson } from "../../runtime.js";
 import { parseDurationMs } from "../parse-duration.js";
+import { requestExitAfterOneShotOutput } from "../one-shot-exit.js";
 import { appendGatewayLifecycleAudit } from "./lifecycle-audit.js";
 import type { DaemonLifecycleOptions } from "./types.js";
 
@@ -66,6 +67,7 @@ export async function requestSafeGatewayRestart(opts: DaemonLifecycleOptions): P
   };
   if (opts.json) {
     writeRuntimeJson(defaultRuntime, payload);
+    requestExitAfterOneShotOutput(defaultRuntime, 0);
   } else {
     defaultRuntime.log(message);
     if (result.preflight.blockers.length > 0) {

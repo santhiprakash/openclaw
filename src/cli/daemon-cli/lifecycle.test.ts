@@ -77,6 +77,7 @@ const restartSystemdService = vi.hoisted(() =>
 );
 const stopSystemdService = vi.hoisted(() => vi.fn<() => Promise<void>>(async () => {}));
 const isTerminalInteractive = vi.fn(() => true);
+const requestExitAfterOneShotOutput = vi.hoisted(() => vi.fn());
 const appendGatewayLifecycleAudit = vi.fn();
 const createGatewayLifecycleMutationAudit = vi.fn(
   (params: { action: string; source?: string }) => (mutation: { mode: string; pid?: number }) =>
@@ -189,6 +190,10 @@ vi.mock("./lifecycle-core.js", () => ({
   runServiceUninstall: vi.fn(),
 }));
 
+vi.mock("../one-shot-exit.js", () => ({
+  requestExitAfterOneShotOutput,
+}));
+
 describe("runDaemonRestart health checks", () => {
   let runDaemonStart: typeof import("./lifecycle.js").runDaemonStart;
   let runDaemonRestart: typeof import("./lifecycle.js").runDaemonRestart;
@@ -270,6 +275,7 @@ describe("runDaemonRestart health checks", () => {
     recoverInstalledLaunchAgent.mockReset().mockResolvedValue(null);
     repairLoadedGatewayServiceForStart.mockReset();
     isTerminalInteractive.mockReset().mockReturnValue(true);
+    requestExitAfterOneShotOutput.mockClear();
     appendGatewayLifecycleAudit.mockClear();
     createGatewayLifecycleMutationAudit.mockClear();
     isDefaultInstallIdentity.mockReset().mockReturnValue(true);
@@ -485,6 +491,8 @@ describe("runDaemonRestart health checks", () => {
       mode: "deferred",
       pid: 123,
     });
+    const { defaultRuntime } = await import("../../runtime.js");
+    expect(requestExitAfterOneShotOutput).toHaveBeenCalledWith(defaultRuntime, 0);
   });
 
   it("keeps force restart on the existing non-safe path", async () => {
@@ -503,6 +511,8 @@ describe("runDaemonRestart health checks", () => {
       timeoutMs: 10_000,
     });
     expect(runServiceRestart).not.toHaveBeenCalled();
+    const { defaultRuntime } = await import("../../runtime.js");
+    expect(requestExitAfterOneShotOutput).toHaveBeenCalledWith(defaultRuntime, 0);
   });
 
   it("rejects --skip-deferral without --safe", async () => {
