@@ -2,11 +2,15 @@
 import process from "node:process";
 import type {
   AgentToolResultMiddleware,
+  AgentToolResultMiddlewareContext,
   AgentToolResultMiddlewareEvent,
   OpenClawAgentToolResult,
 } from "openclaw/plugin-sdk/agent-harness";
+import type { PluginLogger } from "openclaw/plugin-sdk/plugin-entry";
 import { isRecord } from "openclaw/plugin-sdk/string-coerce-runtime";
 import { createTokenjuiceOpenClawEmbeddedExtension } from "./runtime-api.js";
+
+const warnedCodexSessions = new Set<string>();
 
 type TokenjuiceToolResultHandler = (
   event: {
@@ -56,7 +60,9 @@ function normalizeDetails(
   };
 }
 
-export function createTokenjuiceAgentToolResultMiddleware(): AgentToolResultMiddleware {
+export function createTokenjuiceAgentToolResultMiddleware(
+  logger?: PluginLogger,
+): AgentToolResultMiddleware {
   const handlers: TokenjuiceToolResultHandler[] = [];
   createTokenjuiceOpenClawEmbeddedExtension()({
     on(event, handler) {
@@ -66,7 +72,21 @@ export function createTokenjuiceAgentToolResultMiddleware(): AgentToolResultMidd
     },
   });
 
-  return async (event) => {
+  return async (event, ctx?: AgentToolResultMiddlewareContext) => {
+    if (
+      logger &&
+      ctx?.runtime === "codex" &&
+      (event.toolName === "exec" || event.toolName === "bash") &&
+      ctx.sessionId &&
+      !warnedCodexSessions.has(ctx.sessionId)
+    ) {
+      warnedCodexSessions.add(ctx.sessionId);
+      logger.warn(
+        `Tokenjuice is enabled, but native codex-rs ${event.toolName} results cannot be compacted for the Codex model. ` +
+          `The Codex app-server PostToolUse hook is observe-only for middleware. ` +
+          `See https://docs.openclaw.ai/tools/tokenjuice#runtime-caveat.`,
+      );
+    }
     let current = event.result;
     const workdir = event.args.workdir;
     const cwd = event.cwd?.trim()

@@ -1,6 +1,7 @@
 // Tokenjuice tests cover index plugin behavior.
 import fs from "node:fs";
 import { createAgentToolResultMiddlewareRunner } from "openclaw/plugin-sdk/agent-harness";
+import type { PluginLogger } from "openclaw/plugin-sdk/plugin-entry";
 import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -258,5 +259,38 @@ describe("tokenjuice plugin", () => {
     expect(received?.details).not.toHaveProperty("cwd");
     expect(received?.details).not.toHaveProperty("aggregated");
     expect(result?.result.content).toEqual([{ type: "text", text: "compacted" }]);
+  });
+
+  it("warns once per codex session that native bash/exec results are not compacted", async () => {
+    tokenjuiceFactory.mockImplementationOnce(() => undefined);
+
+    const warn = vi.fn();
+    const logger: PluginLogger = { info() {}, warn, error() {}, debug() {} };
+    const middleware = createTokenjuiceAgentToolResultMiddleware(logger);
+
+    const event = {
+      toolCallId: "call-1",
+      toolName: "bash",
+      args: { command: "git status" },
+      result: { content: [{ type: "text", text: "raw" }], details: {} },
+      isError: false,
+    };
+
+    await middleware(event, { runtime: "codex", sessionId: "session-1" });
+    await middleware(event, { runtime: "codex", sessionId: "session-1" });
+    await middleware(
+      { ...event, toolName: "exec" },
+      { runtime: "codex", sessionId: "session-2" },
+    );
+
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("native codex-rs bash results cannot be compacted"),
+    );
+    expect(warn).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("native codex-rs exec results cannot be compacted"),
+    );
   });
 });
