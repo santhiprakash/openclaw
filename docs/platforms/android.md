@@ -63,7 +63,7 @@ Google Play and standalone APK installs use different update channels and may ha
 </Warning>
 
 <Note>
-The sideload verification steps above apply to the official `OpenClaw-Android.apk` published by the OpenClaw project. If you build from source, maintain a fork, or distribute a local build, you must sign it with your own Android signing identity. Do not copy or reuse OpenClaw's release signing credentials. See the [release-owner signing guidance](https://github.com/openclaw/openclaw/blob/main/apps/android/README.md) in `apps/android/README.md`.
+The sideload verification steps above apply to the official `OpenClaw-Android.apk` published by the OpenClaw project. If you build from source, maintain a fork, or distribute a local build, you must sign it with your own Android signing identity. Do not copy or reuse OpenClaw's release signing credentials. See Android's [Sign your app](https://developer.android.com/studio/publish/app-signing) guide for creating and managing your own signing key.
 </Note>
 
 ## Mirror and control Android from a remote Mac
