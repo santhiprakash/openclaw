@@ -766,7 +766,8 @@ export async function runPreflightCompactionIfNeeded(params: {
   const shouldCompactByTranscriptBytes =
     typeof activeTranscriptBytes === "number" &&
     typeof maxActiveTranscriptBytes === "number" &&
-    activeTranscriptBytes >= maxActiveTranscriptBytes;
+    activeTranscriptBytes >= maxActiveTranscriptBytes &&
+    freshPersistedTokens !== 0;
   if (isCodexRuntime && !shouldCompactByTranscriptBytes) {
     // Codex owns native-thread token pressure; OpenClaw owns the host transcript byte fuse
     // that bounds fresh-thread bootstrap seeds.

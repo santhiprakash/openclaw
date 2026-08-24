@@ -2851,6 +2851,58 @@ describe("runMemoryFlushIfNeeded", () => {
     });
   });
 
+  it("does not preflight compact a fresh 0% Codex session even when transcript bytes exceed the fuse", async () => {
+    const storePath = path.join(rootDir, "sqlite-codex-fresh-zero-byte-guard.json");
+    const sessionKey = "agent:main:main";
+    const scope = { agentId: "main", sessionId: "session", sessionKey, storePath };
+    await upsertSessionEntry(scope, { sessionId: "session", updatedAt: 10 });
+    await replaceSqliteTranscriptEvents(scope, [
+      { message: { role: "user", content: "x".repeat(256) }, type: "message" },
+    ]);
+    expect(readTranscriptStatsSync(scope).sizeBytes).toBeGreaterThan(10);
+
+    const sessionEntry: SessionEntry = {
+      sessionId: "session",
+      updatedAt: Date.now(),
+      totalTokens: 0,
+      totalTokensFresh: true,
+      compactionCount: 0,
+      agentRuntimeOverride: "codex",
+      agentHarnessId: "openclaw",
+    };
+    const replyOperation = createReplyOperation();
+
+    const entry = await runPreflightCompactionIfNeeded({
+      cfg: {
+        agents: {
+          defaults: {
+            compaction: { maxActiveTranscriptBytes: "10b" },
+          },
+        },
+      },
+      followupRun: createTestFollowupRun({
+        provider: "openai",
+        model: "gpt-5.5",
+        sessionId: "session",
+        sessionKey,
+      }),
+      defaultModel: "gpt-5.5",
+      agentCfgContextTokens: 1_000_000,
+      sessionEntry,
+      sessionStore: { [sessionKey]: sessionEntry },
+      sessionKey,
+      storePath,
+      isHeartbeat: false,
+      replyOperation,
+    });
+
+    expect(entry).toBe(sessionEntry);
+    expect(entry?.compactionCount).toBe(0);
+    expect(replyOperation.setPhase).not.toHaveBeenCalled();
+    expect(compactEmbeddedAgentSessionMock).not.toHaveBeenCalled();
+    expect(incrementCompactionCountMock).not.toHaveBeenCalled();
+  });
+
   it("leaves an under-limit SQLite Codex session to native token compaction", async () => {
     const storePath = path.join(rootDir, "sqlite-codex-under-byte-guard.json");
     const sessionKey = "agent:main:main";

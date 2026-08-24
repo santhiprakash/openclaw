@@ -12,7 +12,6 @@ import { appendTranscriptEvent, persistSessionTranscriptTurn } from "./session-a
 import {
   readRecentSessionTranscriptMessageEvents,
   readSessionTranscriptActiveLeafEvents,
-  readSessionTranscriptActiveStats,
   readSessionTranscriptBoundedMessageTailPage,
   readSessionTranscriptMessageAnchorPage,
   readSessionTranscriptMessageEventById,
@@ -20,6 +19,7 @@ import {
   readSessionTranscriptMessageEventPage,
   SessionTranscriptProjectionUnavailableError,
 } from "./session-accessor.sqlite-active-events.js";
+import { readSessionTranscriptActiveStats } from "./session-accessor.sqlite-active-stats.js";
 import { runExclusiveSqliteSessionWrite } from "./session-accessor.sqlite-scope.js";
 import { appendTranscriptEventsInTransaction } from "./session-accessor.sqlite-transcript-store.js";
 import {
@@ -325,6 +325,15 @@ describe("SQLite active transcript event projection", () => {
       "kept-assistant",
       "post-reset",
     ]);
+
+    const activeStats = readSessionTranscriptActiveStats(scope);
+    expect(activeStats.eventCount).toBe(3);
+    expect(activeStats.sizeBytes).toBe(
+      recent.events.reduce(
+        (total, entry) => total + Buffer.byteLength(JSON.stringify(entry.event), "utf8") + 1,
+        0,
+      ),
+    );
 
     await appendTranscriptEvent(scope, {
       type: "compaction",

@@ -221,7 +221,6 @@ export {
 export {
   isSessionTranscriptProjectionUnavailableError,
   readRecentSessionTranscriptActiveEvents,
-  readSessionTranscriptActiveStats,
   readSessionTranscriptBoundedMessageTailPage,
   readRecentSessionTranscriptMessageEvents,
   readSessionTranscriptActiveLeafEvents,
@@ -234,6 +233,7 @@ export {
   SessionTranscriptProjectionUnavailableError,
   waitForSessionTranscriptProjection,
 } from "./session-accessor.sqlite-active-events.js";
+export { readSessionTranscriptActiveStats } from "./session-accessor.sqlite-active-stats.js";
 export {
   readSessionTranscriptTitleProbeBatch,
   type SessionTranscriptTitleProbe,
